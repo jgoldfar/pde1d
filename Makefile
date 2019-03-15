@@ -18,10 +18,7 @@ SUITESPARSE_INC?=-I${SUITESPARSE_ROOT}
 INC=${EIGEN_INC} ${SUNDIALS_INC} ${SUITESPARSE_INC} \
     -Ipde1dlib -IFDJacobian -Iutil
 
-# Flags for compilation step. NOTE: Build SUNDIALS with int32_t
-# index type, which will then match with the Eigen index type
-# being set here.
-
+# Flags for compilation step.
 CPPFLAGS=-g -Wno-deprecated-declarations -DEIGEN_DEFAULT_DENSE_INDEX_TYPE=int64_t
 
 # Flags for link step
