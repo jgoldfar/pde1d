@@ -21,26 +21,26 @@
 
 class FiniteDiffJacobian {
 public:
-  typedef Eigen::SparseMatrix<double> SparseMat;
+  typedef Eigen::SparseMatrix<double, 0, sunindextype> SparseMat;
   typedef Eigen::Map<SparseMat> SparseMap;
-  FiniteDiffJacobian(SparseMat &jacPattern);
+  FiniteDiffJacobian(const SparseMat &jacPattern);
   ~FiniteDiffJacobian();
   void calcJacobian(double tres, double alpha, double beta,
     N_Vector uu, N_Vector up, N_Vector r,
-    IDAResFn rf, void *userData, SparseMat &Jac, bool useCD=false);
+    IDAResFn rf, void *userData, SparseMat &Jac, bool useCD = false);
   void calcJacobian(double tres, double alpha, double beta,
     N_Vector uu, N_Vector up, N_Vector r,
     IDAResFn rf, void *userData, SparseMap &jac, bool useCD = false);
 private:
   void calcJacobian(double tres, double alpha,
     double beta, N_Vector uu, N_Vector up, N_Vector r,
-    IDAResFn rf, void *userData, double *jacData, 
-    int *jacColPtrs, int *jacRowIndices);
+    IDAResFn rf, void *userData, double *jacData,
+    sunindextype *jacColPtrs, sunindextype *jacRowIndices);
   void calcJacobianCD(double tres, double alpha,
     double beta, N_Vector uu, N_Vector up, N_Vector r,
     IDAResFn rf, void *userData, double *jacData,
-    int *jacColPtrs, int *jacRowIndices);
-  void copyIndices(int *outerInd, int *innerInd);
+    sunindextype *jacColPtrs, sunindextype *jacRowIndices);
+  void copyIndices(sunindextype *outerInd, sunindextype *innerInd);
   int neq, nnz;
   Eigen::VectorXi indrow, jpntr, ngrp;
   int maxgrp, mingrp;

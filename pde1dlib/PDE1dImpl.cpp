@@ -35,7 +35,7 @@ using std::endl;
 
 
 #include <ida/ida.h>
-#include <ida/ida_direct.h> 
+#include <ida/ida_direct.h>
 #define SUN_USING_SPARSE 1
 #if SUNDIALS_VERSION_MAJOR >= 3
 #define SUNDIALS_3 1
@@ -76,17 +76,18 @@ using std::endl;
 class SunSparseMap : public FiniteDiffJacobian::SparseMap {
 public:
   SunSparseMap(SUNMatrix a) :
-    FiniteDiffJacobian::SparseMap(SUNSparseMatrix_Rows(a),
-      SUNSparseMatrix_Columns(a), 
+    FiniteDiffJacobian::SparseMap(
+      SUNSparseMatrix_Rows(a),
+      SUNSparseMatrix_Columns(a),
       SUNSparseMatrix_NNZ(a),
-      SUNSparseMatrix_IndexPointers(a), 
+      SUNSparseMatrix_IndexPointers(a),
       SUNSparseMatrix_IndexValues(a),
       SUNSparseMatrix_Data(a)) {
   }
 };
 #endif
 
-PDE1dImpl::PDE1dImpl(PDE1dDefn &pde, PDE1dOptions &options) : 
+PDE1dImpl::PDE1dImpl(PDE1dDefn &pde, PDE1dOptions &options) :
 pde(pde), options(options)
 {
 #if _cpp_lib_make_unique
@@ -162,7 +163,7 @@ pde(pde), options(options)
       cout << P;
     cout << endl;
   }
-  finiteDiffJacobian = 
+  finiteDiffJacobian =
     std::unique_ptr<FiniteDiffJacobian>(new FiniteDiffJacobian(P));
   numViewElemsPerElem=options.getViewMesh();
 
@@ -1190,7 +1191,7 @@ void PDE1dImpl::printStats()
   pdePrintf("Number of nonlinear convergence failures = %ld\n", nncfails);
 }
 
-void PDE1dImpl::calcJacPattern(Eigen::SparseMatrix<double> &J)
+void PDE1dImpl::calcJacPattern(SparseMat &J)
 {
   J.resize(totalNumEqns, totalNumEqns);
   size_t n2 = numDepVars*numDepVars;
@@ -1279,12 +1280,13 @@ void PDE1dImpl::calcJacobian(double time, double alpha, double beta, SunVector &
   SunVector &up, SunVector &R, SparseMat &Jac)
 {
   const bool useCD = !true; // use central difference approximation, if true
-  finiteDiffJacobian->calcJacobian(time, alpha, beta, u.getNV(), up.getNV(), 
-    R.getNV(), resFunc, this, Jac, useCD);
+  finiteDiffJacobian->calcJacobian(time, alpha, beta,
+                                   u.getNV(), up.getNV(),
+                                   R.getNV(), resFunc, this,
+                                   Jac, useCD);
 }
 
-void PDE1dImpl::calcEvents(double time, const SunVector &u, 
-  double *gOut)
+void PDE1dImpl::calcEvents(double time, const SunVector &u, double *gOut)
 {
   pdeEvents->calcEvents(time, u, gOut);
 }
@@ -1298,16 +1300,16 @@ void PDE1dImpl::testICCalc(SunVector &uu, SunVector &up, SunVector &res,
   print(up.getNV(), "up");
   print(res.getNV(), "res");
   // calc jac matrices
-  SparseMat dfDy(totalNumEqns, totalNumEqns), 
+  SparseMat dfDy(totalNumEqns, totalNumEqns),
     dfDyp(totalNumEqns, totalNumEqns);
-  finiteDiffJacobian->calcJacobian(0, 1, 0, uu.getNV(), up.getNV(), 
+  finiteDiffJacobian->calcJacobian(0, 1, 0, uu.getNV(), up.getNV(),
     res.getNV(), resFunc, this, dfDy);
   cout << "dfDy\n" << dfDy.toDense() << endl;
   Eigen::FullPivLU<RealMatrix> lu(dfDy.toDense());
   printf("dfdy: n=%td, rank=%td\n", dfDy.rows(), lu.rank());
 
 #if 0
-  fDiffJac->calcJacobian(0, 0, 1, uu.getNV(), up.getNV(), res.getNV(), 
+  fDiffJac->calcJacobian(0, 0, 1, uu.getNV(), up.getNV(), res.getNV(),
     resFunc, this, dfDyp);
 #else
   calcJacobian(0, 0, 1, uu, up, res, dfDyp);

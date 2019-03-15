@@ -20,7 +20,6 @@
 #include <memory>
 
 #include <Eigen/SparseCore>
-typedef Eigen::SparseMatrix<double> SparseMat;
 
 #include "PDE1dDefn.h"
 #include "GausLegendreIntRule.h"
@@ -31,6 +30,8 @@ typedef Eigen::SparseMatrix<double> SparseMat;
 #else
 #include <sundials/sundials_sparse.h>
 #endif
+
+typedef Eigen::SparseMatrix<double, 0, sunindextype> SparseMat;
 
 class PDE1dOptions;
 class FiniteDiffJacobian;
@@ -48,10 +49,10 @@ public:
   int solveTransient(PDESolution &sol);
   void calcRHSODE(double time, SunVector &u, SunVector &up, SunVector &R);
 #if SUNDIALS_3
-  void calcJacobianODE(double time, double alpha, SunVector &u, 
+  void calcJacobianODE(double time, double alpha, SunVector &u,
     SunVector &up, SunVector &R, SUNMatrix Jac);
 #else
-void calcJacobianODE(double time, double alpha, SunVector &u, 
+void calcJacobianODE(double time, double alpha, SunVector &u,
     SunVector &up, SunVector &R, SlsMat Jac);
 #endif
   void calcJacobian(double time, double alpha, double beta, SunVector &u,
@@ -71,24 +72,24 @@ void calcJacobianODE(double time, double alpha, SunVector &u,
   typedef std::vector<RealMatrix> MatrixVec;
   MatrixVec testODEJacobian(RealVector &y);
 private:
-  void calcGlobalEqns(double t, SunVector &u, SunVector &up, 
+  void calcGlobalEqns(double t, SunVector &u, SunVector &up,
     RealVector &Cxd, RealVector &F, RealVector &S);
   template<class T, class TR>
   void calcGlobalEqnsNonVectorized(double t, T &u, T &up, TR &Cxd, TR &F, TR &S);
   template<class T, class TR>
   void calcGlobalEqnsVectorized(double t, T &u, T &up, TR &Cxd, TR &F, TR &S);
   void setAlgVarFlags(SunVector &y0, SunVector &y0p, SunVector &id);
-  RealMatrix calcDOdeDvDot(double time, const RealMatrix &yFE, 
+  RealMatrix calcDOdeDvDot(double time, const RealMatrix &yFE,
     const RealMatrix &ypFE, const RealMatrix &r2, RealVector &v, RealVector &vdot);
   RealMatrix calcDOdeDv(double time, const RealMatrix &yFE,
     const RealMatrix &ypFE, const RealMatrix &r2, RealVector &v, RealVector &vdot);
   void calcDOdeDu(double time, const RealMatrix &yFE,
-    const RealMatrix &ypFE, const RealMatrix &r2, RealVector &v, 
+    const RealMatrix &ypFE, const RealMatrix &r2, RealVector &v,
     RealVector &vdot, RealMatrix &jac, RealMatrix &jacDot);
   void checkIncreasing(const RealVector &v, int argNum, const char *argName);
   void checkCoeffs(const PDE1dDefn::PDECoeff &coeffs);
   void printStats();
-  void calcJacPattern(Eigen::SparseMatrix<double> &jac);
+  void calcJacPattern(SparseMat &jac);
   void testICCalc(SunVector &uu, SunVector &up, SunVector &res,
     SunVector &id, double tf);
   double calcResidualNorm(double t, SunVector &uu, SunVector &up, SunVector &res);

@@ -3,9 +3,9 @@
 #include "PDE1dException.h"
 
 #include <sundials/sundials_matrix.h>
-#include <sunmatrix/sunmatrix_sparse.h>  
+#include <sunmatrix/sunmatrix_sparse.h>
 #include <sundials/sundials_linearsolver.h>
-#include <nvector/nvector_serial.h> 
+#include <nvector/nvector_serial.h>
 
 #include <Eigen/SparseCore>
 typedef Eigen::SparseMatrix<double, Eigen::ColMajor, sunindextype> SSparseMat;
@@ -14,10 +14,13 @@ typedef Eigen::Map<SSparseMat> ESM;
 class SunSparseMapX : public ESM {
 public:
   SunSparseMapX(SUNMatrix a) :
-    ESM(SUNSparseMatrix_Rows(a), SUNSparseMatrix_Columns(a), SUNSparseMatrix_NNZ(a),
-      SUNSparseMatrix_IndexPointers(a), SUNSparseMatrix_IndexValues(a),
-      SUNSparseMatrix_Data(a)) {
-
+    ESM(
+        SUNSparseMatrix_Rows(a),
+        SUNSparseMatrix_Columns(a),
+        SUNSparseMatrix_NNZ(a),
+        SUNSparseMatrix_IndexPointers(a),
+        SUNSparseMatrix_IndexValues(a),
+        SUNSparseMatrix_Data(a)) {
   }
 };
 

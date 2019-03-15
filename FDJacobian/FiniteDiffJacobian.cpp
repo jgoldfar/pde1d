@@ -26,7 +26,7 @@ namespace {
   }
 }
 
-FiniteDiffJacobian::FiniteDiffJacobian(SparseMat &jacPattern)
+FiniteDiffJacobian::FiniteDiffJacobian(const SparseMat &jacPattern)
 {
   neq = static_cast<int>(jacPattern.rows());
   nnz = static_cast<int>(jacPattern.nonZeros());
@@ -61,10 +61,10 @@ void FiniteDiffJacobian::calcJacobian(double tres, double alpha,
   jac.resize(neq, neq);
   jac.reserve(nnz);
   if (useCD)
-    calcJacobianCD(tres, alpha, beta, uu, up, r, rf, userData, 
+    calcJacobianCD(tres, alpha, beta, uu, up, r, rf, userData,
       jac.valuePtr(), jac.outerIndexPtr(), jac.innerIndexPtr());
   else
-    calcJacobian(tres, alpha, beta, uu, up, r, rf, userData, 
+    calcJacobian(tres, alpha, beta, uu, up, r, rf, userData,
       jac.valuePtr(), jac.outerIndexPtr(), jac.innerIndexPtr());
   jac.resizeNonZeros(nnz);
 }
@@ -83,7 +83,7 @@ void FiniteDiffJacobian::calcJacobian(double tres, double alpha, double beta,
 void FiniteDiffJacobian::calcJacobian(double tres, double alpha,
   double beta, N_Vector uu, N_Vector up, N_Vector r,
   IDAResFn rFunc, void *userData, double *jacVals,
-  int *jacColPtrs, int *jacRowIndices)
+  sunindextype *jacColPtrs, sunindextype *jacRowIndices)
 {
   typedef Eigen::Map<Eigen::VectorXd> MapVec;
   MapVec u(NV_DATA_S(uu), neq);
@@ -141,7 +141,7 @@ void FiniteDiffJacobian::calcJacobian(double tres, double alpha,
 void FiniteDiffJacobian::calcJacobianCD(double tres, double alpha,
   double beta, N_Vector uu, N_Vector up, N_Vector r,
   IDAResFn rFunc, void *userData, double *jacVals,
-  int *jacColPtrs, int *jacRowIndices)
+  sunindextype *jacColPtrs, sunindextype *jacRowIndices)
 {
   typedef Eigen::Map<Eigen::VectorXd> MapVec;
   MapVec u(NV_DATA_S(uu), neq);
@@ -203,7 +203,7 @@ void FiniteDiffJacobian::calcJacobianCD(double tres, double alpha,
   copyIndices(jacColPtrs, jacRowIndices);
 }
 
-void FiniteDiffJacobian::copyIndices(int *outerInd, int *innerInd) {
+void FiniteDiffJacobian::copyIndices(sunindextype *outerInd, sunindextype *innerInd) {
   // copy the row and column pointers
   indrow.array() -= 1;
   jpntr.array() -= 1;
