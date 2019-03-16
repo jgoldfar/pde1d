@@ -41,7 +41,7 @@ void printMat(const T &a, const char *title, const char *format = "%16.9e,") {
 }
 
 template
-<typename T, template<typename ELEM, typename ALLOC = std::allocator<ELEM>> class Container>
+<typename T, template<typename ELEM, typename ALLOC = std::allocator<ELEM> > class Container>
 std::ostream& operator<< (std::ostream& out, const Container<T>& v)
 {
   out << "{";

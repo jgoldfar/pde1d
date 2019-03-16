@@ -1,9 +1,4 @@
 # vim ft=yaml
-# Multiple lines can be made a single "virtual line" because of the way that
-# Travis munges each line before executing it to print out the exit status.
-# It's okay for it to be on multiple physical lines, so long as you remember:
-# - There can't be any leading "-"s - All newlines will be removed, so use
-# ";"s
 sudo: false  # To use travis container infrastructure
 
 dist: xenial
@@ -20,11 +15,9 @@ compiler:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - os: osx
   exclude:
-    - os: osx # This is identical (apparently) to os: osx and compiler: clang
-      compiler: gcc
+    - os: osx # This is identical (apparently) to os: osx and compiler: gcc
+      compiler: clang
 
 addons:
   apt:
@@ -34,9 +27,9 @@ addons:
       - libeigen3-dev
       - libsuitesparse-dev
       - libboost-dev
-      - libsundials-serial-dev
       - octave
       - liboctave-dev
+      - gcc-6
       - g++-6
   homebrew:
     packages:
@@ -50,36 +43,44 @@ addons:
 env:
   global:
     - USE_OCTAVE=true
+    - SUNDIALS_VERSION=4.1.0
 
-#TODO: Use packaged sundials version
+# Override default compiler with newer one, only on GCC, which
+# appears to be the only way to get a new enough stdlib.
+# Linux installation also requires a newer version of Sundials.
+# Note: Multi-line YAML syntax
 install:
-  # Set necessary environment variables (platform/dep version dependent)
-  # Note: multi-line YAML syntax used here.
   - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      export SUITESPARSE_ROOT=/usr/local/Cellar/suite-sparse/5.3.0/include/;
-      export SUITESPARSE_LDIR=/usr/local/Cellar/suite-sparse/5.3.0/lib/;
-      export SUNDIALS_ROOT=/usr/local/Cellar/sundials/4.1.0/;
-      export EIGEN_ROOT=/usr/local/include/eigen3/;
-      export OCTAVE_INC="-I/usr/local/include/octave-4.4.1/octave/";
-      export OCTAVE_LDIR=/usr/local/lib/octave/4.4.1/;
-    elif [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      export SUITESPARSE_ROOT=/usr/include/suitesparse;
-      export SUITESPARSE_LDIR=/usr/lib/x86_64-linux-gnu;
-      export EIGEN_ROOT=/usr/include/eigen3;
-      export OCTAVE_ROOT=/usr/include/octave-4.0.0/octave;
-      export OCTAVE_INC="-I${OCTAVE_ROOT}";
-      export OCTAVE_LDIR=/usr/local/lib/octave;
-      # Override default compiler with newer one, only on GCC, which
-      # appears to be the only way to get a new enough stdlib.
+    if [[ ${TRAVIS_OS_NAME} == "linux" ]] ; then
+      if [[ ${TRAVIS_COMPILER} == "gcc" ]] ; then
+        export CC=gcc-6;
+        export CC_FOR_BUILD=${CC};
+        export CXX=g++-6;
+        export CXX_FOR_BUILD=${CXX};
+      fi
+      cd ${TRAVIS_BUILD_DIR} ;
+      curl -L https://computation.llnl.gov/projects/sundials/download/sundials-${SUNDIALS_VERSION}.tar.gz -o sundials-${SUNDIALS_VERSION}.tar.gz ;
+      tar xzf sundials-${SUNDIALS_VERSION}.tar.gz ;
+      mkdir -p ${TRAVIS_BUILD_DIR}/sundials-${SUNDIALS_VERSION}/build ;
+      cd ${TRAVIS_BUILD_DIR}/sundials-${SUNDIALS_VERSION}/build ;
+      cmake -DCMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/sundials -DEXAMPLES_INSTALL_PATH=${TRAVIS_BUILD_DIR}/sundials -DBUILD_ARKODE=OFF -DBUILD_CVODE=OFF -DBUILD_CVODES=OFF -DBUILD_IDAS=OFF -DBUILD_KINSOL=OFF -DKLU_ENABLE=ON -DKLU_INCLUDE_DIR=/usr/include/suitesparse -DKLU_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu .. ;
+      make && make install ;
+    fi
+
+script:
+  - |
+    if [[ ${TRAVIS_OS_NAME} == "linux" ]] ; then
       if [[ ${TRAVIS_COMPILER} == "gcc" ]]; then
         export CC=gcc-6;
         export CC_FOR_BUILD=${CC};
         export CXX=g++-6;
         export CXX_FOR_BUILD=${CXX};
       fi
+      export SUNDIALS_LDIR=${TRAVIS_BUILD_DIR}/sundials/lib ;
+      export SUNDIALS_INCDIR=${TRAVIS_BUILD_DIR}/sundials/include ;
+      cd ${TRAVIS_BUILD_DIR} && make pde1d.mex ;
     fi
-
-script:
-  - cd ${TRAVIS_BUILD_DIR}
-  - make pde1d.mex
+  - |
+    if [[ ${TRAVIS_OS_NAME} == "osx" ]] ; then
+      cd ${TRAVIS_BUILD_DIR} && make pde1d.mex ;
+    fi

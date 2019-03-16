@@ -855,7 +855,11 @@ void PDE1dImpl::calcGlobalEqnsNonVectorized(double t, T &u, T &up,
       calcDOdeDu(t0, yFE, ypFE, f2, v, vDot, dOdeDu, dOdeDuDot);
       cout << "dOdeDu:\n" << dOdeDu << endl;
       cout << "dOdeDuDot:\n" << dOdeDuDot << endl;
-      mats = { dOdeDv, dOdeDvDot, dOdeDu, dOdeDuDot };
+      mats.reserve(4);
+      mats.push_back(dOdeDv);
+      mats.push_back(dOdeDvDot);
+      mats.push_back(dOdeDu);
+      mats.push_back(dOdeDuDot);
     }
     return mats;
     //throw PDE1dException("pde1d:testODEJacobian", "Test complete.");
