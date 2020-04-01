@@ -13,12 +13,16 @@ compiler:
   - clang
   - gcc
 
+osx_image:
+  - xcode11.3
+
 matrix:
   fast_finish: true
   exclude:
     - os: osx # This is identical (apparently) to os: osx and compiler: gcc
       compiler: clang
-
+    - os: osx # Path to include files for sundials has changed, breaking the MacOS build
+      compile: gcc
 addons:
   apt:
     sources:
@@ -43,7 +47,7 @@ addons:
 env:
   global:
     - USE_OCTAVE=true
-    - SUNDIALS_VERSION=4.1.0
+    - SUNDIALS_VERSION=5.2.0
 
 # Override default compiler with newer one, only on GCC, which
 # appears to be the only way to get a new enough stdlib.
