@@ -6,14 +6,14 @@
 
 pde1d solves systems of partial differential equations (PDE) in a single
 spatial variable and time.
-The input is mostly compatible with the MATLAB function pdepe. 
-Many pdepe examples will work with pde1d with only small changes. 
+The input is mostly compatible with the MATLAB function pdepe.
+Many pdepe examples will work with pde1d with only small changes.
 
 However, pde1d contains several enhancements which make it substantially more powerful than pdepe.
 Specifically, pde1d allows any number of ordinary differential equations (ODE) to be coupled to the system of PDE.
 One use of these ODE, for example, is to allow more complex boundary conditions at the two ends of the PDE domain.
 Another benefit of pde1d relative to pdepe is improved performance, particularly when many mesh points are required for a converged solution.
-Third, pde1d allows advanced users to specify the order of the approximation functions in the spatial domain. 
+Third, pde1d allows advanced users to specify the order of the approximation functions in the spatial domain.
 
 
 Several examples and basic documentation are included.
@@ -23,11 +23,12 @@ His examples, modified for pde1d can be found in the examples directory.
 
 ## Build Instructions
 
-pde1d is written in C++, is built using the Make build system, and relies 
+pde1d is written in C++, is built using the Make build system, and relies
 on the following third-party libraries.
 
-* The IDA library from [Sundials](http://computation.llnl.gov/projects/sundials)
-is used for solution of the differential-algebraic equations. Note that in order for the library to be compatible with Eigen (and the rest of this package), the index type should be set to `int32_t` at compile time (that is, `SUNDIALS_INDEX_TYPE=INT32_T`.) Look to the build instructions in the `.travis.yml` file in this repository to see how this is done on Linux and MacOS.
+* The IDA library from [Sundials](http://computation.llnl.gov/projects/sundials) is used for solution of the differential-algebraic equations.
+Note that in order for the library to be compatible with Eigen (and the rest of this package), the index type should be set to `int32_t` at compile time (that is, `SUNDIALS_INDEX_TYPE=INT32_T`.)
+Look to the build instructions in the `.travis.yml` file in this repository to see how this is done on Linux and MacOS.
 
 * The KLU library from [SuiteSparse](http://faculty.cse.tamu.edu/davis/suitesparse.html) is required.
 
@@ -67,7 +68,7 @@ make objects pde1d.mex
 
 ### Building on MacOS
 
-The Sundials + PDE1D build is tested on MacOS with the following [Homebrew](https://brew.sh/) dependencies:
+The Sundials + PDE1D build has recently been tested on MacOS with the following [Homebrew](https://brew.sh/) dependencies:
 
 ```shell
 brew install octave boost eigen
